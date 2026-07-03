@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="DesafioControleGastos.API/DesafioControleGastos.API.csproj" />
+  <Project Path="DesafioControleGastos.Core/DesafioControleGastos.Core.csproj" />
+  <Project Path="DesafioControleGastos.Infra/DesafioControleGastos.Infra.csproj" />
+  <Project Path="DesafioControleGastos.Tests/DesafioControleGastos.Tests.csproj" />
+</Solution>
