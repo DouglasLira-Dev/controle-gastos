@@ -34,6 +34,13 @@ builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IPessoaRepository, PessoaRepository>();
 
 // ============================================
+// CONFIGURAÇÃO DOS SERVICES 
+// ============================================
+builder.Services.AddScoped<IPessoaService, PessoaService>();
+builder.Services.AddScoped<ITransacaoService, TransacaoService>();
+
+
+// ============================================
 // CONFIGURAÇÃO DO AUTOMAPPER
 // ============================================
 builder.Services.AddAutoMapper(typeof(MappingProfile));
