@@ -21,8 +21,10 @@ namespace DesafioControleGastos.API.Middlewares
 
         public async Task InvokeAsync(HttpContext context)
         {
+            var headers = context.Response.Headers;
+
             // 🔒 Content Security Policy
-            context.Response.Headers.Add("Content-Security-Policy", 
+            headers.Append("Content-Security-Policy", 
                 "default-src 'self'; " +
                 "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
                 "style-src 'self' 'unsafe-inline'; " +
@@ -30,19 +32,19 @@ namespace DesafioControleGastos.API.Middlewares
                 "font-src 'self' data:;");
 
             // 🔒 Previne XSS
-            context.Response.Headers.Add("X-XSS-Protection", "1; mode=block");
+            headers.Append("X-XSS-Protection", "1; mode=block");
 
             // 🔒 Previne Clickjacking
-            context.Response.Headers.Add("X-Frame-Options", "DENY");
+            headers.Append("X-Frame-Options", "DENY");
 
             // 🔒 Previne MIME Type Sniffing
-            context.Response.Headers.Add("X-Content-Type-Options", "nosniff");
+            headers.Append("X-Content-Type-Options", "nosniff");
 
             // 🔒 Referrer Policy
-            context.Response.Headers.Add("Referrer-Policy", "strict-origin-when-cross-origin");
+            headers.Append("Referrer-Policy", "strict-origin-when-cross-origin");
 
             // 🔒 Permissions Policy
-            context.Response.Headers.Add("Permissions-Policy", 
+            headers.Append("Permissions-Policy", 
                 "geolocation=(), microphone=(), camera=(), payment=(), usb=()");
 
             await _next(context);
