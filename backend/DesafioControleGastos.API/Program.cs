@@ -1,12 +1,13 @@
 using DesafioControleGastos.Core.Interfaces;
 using DesafioControleGastos.Core.Mappings;
+using DesafioControleGastos.Core.Models; 
+using DesafioControleGastos.Core.Services;
 using DesafioControleGastos.Core.Validators;
 using DesafioControleGastos.Infra.Data;
 using DesafioControleGastos.Infra.Repositories;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using DesafioControleGastos.Core.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,10 +23,10 @@ Log.Logger = new LoggerConfiguration()
 builder.Host.UseSerilog();
 
 // ============================================
-// CONFIGURAÇÃO DO BANCO DE DADOS
+// CONFIGURAÇÃO DO BANCO DE DADOS (SQLite)
 // ============================================
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // ============================================
 // CONFIGURAÇÃO DO REPOSITORY
@@ -34,11 +35,10 @@ builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IPessoaRepository, PessoaRepository>();
 
 // ============================================
-// CONFIGURAÇÃO DOS SERVICES 
+// CONFIGURAÇÃO DOS SERVICES
 // ============================================
 builder.Services.AddScoped<IPessoaService, PessoaService>();
 builder.Services.AddScoped<ITransacaoService, TransacaoService>();
-
 
 // ============================================
 // CONFIGURAÇÃO DO AUTOMAPPER
@@ -74,43 +74,39 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
     });
 
-    // ============================================
-    // CONFIGURAÇÃO DOS SERVICES
-    // ============================================
-    builder.Services.AddScoped<IPessoaService, PessoaService>();
-    builder.Services.AddScoped<ITransacaoService, TransacaoService>();
+var app = builder.Build();
 
-    // ============================================
-    // SWAGGER DESABILITADO TEMPORARIAMENTE
-    // ============================================
-    // builder.Services.AddEndpointsApiExplorer();
-    // builder.Services.AddSwaggerGen();
+// ============================================
+// PIPELINE DE REQUISIÇÕES
+// ============================================
 
-    var app = builder.Build();
+app.UseHttpsRedirection();
+app.UseCors("AllowReactApp");
+app.UseAuthorization();
+app.MapControllers();
 
-    // ============================================
-    // PIPELINE DE REQUISIÇÕES
-    // ============================================
-
-    // Swagger desabilitado
-    // if (app.Environment.IsDevelopment())
-    // {
-    //     app.UseSwagger();
-    //     app.UseSwaggerUI();
-    // }
-
-    app.UseHttpsRedirection();
-    app.UseCors("AllowReactApp");
-    app.UseAuthorization();
-    app.MapControllers();
-
-    // ============================================
-    // INICIALIZAÇÃO DO BANCO DE DADOS
-    // ============================================
-    using (var scope = app.Services.CreateScope())
+// ============================================
+// INICIALIZAÇÃO DO BANCO DE DADOS
+// ============================================
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await context.Database.EnsureCreatedAsync();
+    
+    // Seed de dados para teste
+    if (!context.Pessoas.Any())
     {
-        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        context.Database.EnsureCreated();
+        var pessoa = new Pessoa("João Silva", 30); 
+        context.Pessoas.Add(pessoa);
+        await context.SaveChangesAsync();
+        
+        context.Transacoes.Add(new Transacao("Salário", 5000, TipoTransacao.Receita, pessoa.Id));
+        context.Transacoes.Add(new Transacao("Aluguel", 1500, TipoTransacao.Despesa, pessoa.Id));
+        context.Transacoes.Add(new Transacao("Supermercado", 800, TipoTransacao.Despesa, pessoa.Id));
+        await context.SaveChangesAsync();
+        
+        Log.Information("✅ Dados iniciais criados com sucesso!");
     }
+}
 
-    app.Run();
+app.Run();
