@@ -17,10 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 // 🔒 CONFIGURAÇÃO DE SEGURANÇA
 // ============================================
 
-// 🔒 Configuração JWT
 builder.Services.AddJwtAuthentication(builder.Configuration);
-
-// 🔒 Configuração Rate Limiting
 builder.Services.AddRateLimiting();
 
 // ============================================
@@ -67,7 +64,7 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddValidatorsFromAssemblyContaining<PessoaCreateValidator>();
 
 // ============================================
-// 🔒 CONFIGURAÇÃO DO CORS (SEGURANÇA)
+// 🔒 CONFIGURAÇÃO DO CORS
 // ============================================
 var allowedOrigins = builder.Configuration["Cors:AllowedOrigins"]?.Split(',', StringSplitOptions.RemoveEmptyEntries) 
     ?? new[] { "http://localhost:5173", "http://localhost:3000" };
@@ -95,10 +92,18 @@ builder.Services.AddControllers()
     });
 
 // ============================================
-// CONFIGURAÇÃO DO SWAGGER (VERSÃO SIMPLIFICADA)
+// CONFIGURAÇÃO DO SWAGGER
 // ============================================
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.OpenApiInfo
+    {
+        Title = "Desafio Controle de Gastos API",
+        Version = "v1",
+        Description = "API para controle de gastos residenciais com segurança"
+    });
+});
 
 var app = builder.Build();
 
@@ -106,20 +111,15 @@ var app = builder.Build();
 // 🔒 PIPELINE DE SEGURANÇA
 // ============================================
 
-// 🔒 Security Headers (SEMPRE primeiro)
 app.UseMiddleware<SecurityHeadersMiddleware>();
-
-// 🔒 Exception Handling (Segundo)
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-// 🔒 HTTPS Redirection
 if (!app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
     app.UseHsts();
 }
 
-// 🔒 Rate Limiting
 app.UseRateLimiter();
 
 // ============================================
@@ -133,11 +133,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowReactApp");
-
-// 🔒 Authentication e Authorization
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
 // ============================================
@@ -148,18 +145,18 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        await context.Database.EnsureCreatedAsync();
+        context.Database.EnsureCreated();
         
         if (!context.Pessoas.Any())
         {
             var pessoa = new Pessoa("João Silva", 30);
             context.Pessoas.Add(pessoa);
-            await context.SaveChangesAsync();
+            context.SaveChanges();
             
             context.Transacoes.Add(new Transacao("Salário", 5000, TipoTransacao.Receita, pessoa.Id));
             context.Transacoes.Add(new Transacao("Aluguel", 1500, TipoTransacao.Despesa, pessoa.Id));
             context.Transacoes.Add(new Transacao("Supermercado", 800, TipoTransacao.Despesa, pessoa.Id));
-            await context.SaveChangesAsync();
+            context.SaveChanges();
             
             Log.Information("✅ Dados iniciais criados com sucesso!");
         }
