@@ -6,6 +6,7 @@ using DesafioControleGastos.Infra.Repositories;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using DesafioControleGastos.Core.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -66,37 +67,43 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
     });
 
-// ============================================
-// SWAGGER DESABILITADO TEMPORARIAMENTE
-// ============================================
-// builder.Services.AddEndpointsApiExplorer();
-// builder.Services.AddSwaggerGen();
+    // ============================================
+    // CONFIGURAÇÃO DOS SERVICES
+    // ============================================
+    builder.Services.AddScoped<IPessoaService, PessoaService>();
+    builder.Services.AddScoped<ITransacaoService, TransacaoService>();
 
-var app = builder.Build();
+    // ============================================
+    // SWAGGER DESABILITADO TEMPORARIAMENTE
+    // ============================================
+    // builder.Services.AddEndpointsApiExplorer();
+    // builder.Services.AddSwaggerGen();
 
-// ============================================
-// PIPELINE DE REQUISIÇÕES
-// ============================================
+    var app = builder.Build();
 
-// Swagger desabilitado
-// if (app.Environment.IsDevelopment())
-// {
-//     app.UseSwagger();
-//     app.UseSwaggerUI();
-// }
+    // ============================================
+    // PIPELINE DE REQUISIÇÕES
+    // ============================================
 
-app.UseHttpsRedirection();
-app.UseCors("AllowReactApp");
-app.UseAuthorization();
-app.MapControllers();
+    // Swagger desabilitado
+    // if (app.Environment.IsDevelopment())
+    // {
+    //     app.UseSwagger();
+    //     app.UseSwaggerUI();
+    // }
 
-// ============================================
-// INICIALIZAÇÃO DO BANCO DE DADOS
-// ============================================
-using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    context.Database.EnsureCreated();
-}
+    app.UseHttpsRedirection();
+    app.UseCors("AllowReactApp");
+    app.UseAuthorization();
+    app.MapControllers();
 
-app.Run();
+    // ============================================
+    // INICIALIZAÇÃO DO BANCO DE DADOS
+    // ============================================
+    using (var scope = app.Services.CreateScope())
+    {
+        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        context.Database.EnsureCreated();
+    }
+
+    app.Run();
