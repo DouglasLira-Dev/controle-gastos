@@ -1,41 +1,102 @@
+using DesafioControleGastos.Core.Interfaces;
+using DesafioControleGastos.Core.Mappings;
+using DesafioControleGastos.Core.Validators;
+using DesafioControleGastos.Infra.Data;
+using DesafioControleGastos.Infra.Repositories;
+using FluentValidation;
+using Microsoft.EntityFrameworkCore;
+using Serilog;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+// ============================================
+// CONFIGURAÇÃO DO SERILOG (LOGGING)
+// ============================================
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.Console()
+    .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
+
+// ============================================
+// CONFIGURAÇÃO DO BANCO DE DADOS
+// ============================================
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// ============================================
+// CONFIGURAÇÃO DO REPOSITORY
+// ============================================
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped<IPessoaRepository, PessoaRepository>();
+
+// ============================================
+// CONFIGURAÇÃO DO AUTOMAPPER
+// ============================================
+builder.Services.AddAutoMapper(typeof(MappingProfile));
+
+// ============================================
+// CONFIGURAÇÃO DOS VALIDATORS
+// ============================================
+builder.Services.AddValidatorsFromAssemblyContaining<PessoaCreateValidator>();
+
+// ============================================
+// CONFIGURAÇÃO DO CORS (SEGURANÇA)
+// ============================================
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:5173", "http://localhost:3000")
+                  .AllowAnyMethod()
+                  .AllowAnyHeader()
+                  .AllowCredentials();
+        });
+});
+
+// ============================================
+// CONFIGURAÇÃO DOS CONTROLLERS
+// ============================================
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+    });
+
+// ============================================
+// SWAGGER DESABILITADO TEMPORARIAMENTE
+// ============================================
+// builder.Services.AddEndpointsApiExplorer();
+// builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
+// ============================================
+// PIPELINE DE REQUISIÇÕES
+// ============================================
+
+// Swagger desabilitado
+// if (app.Environment.IsDevelopment())
+// {
+//     app.UseSwagger();
+//     app.UseSwaggerUI();
+// }
 
 app.UseHttpsRedirection();
+app.UseCors("AllowReactApp");
+app.UseAuthorization();
+app.MapControllers();
 
-var summaries = new[]
+// ============================================
+// INICIALIZAÇÃO DO BANCO DE DADOS
+// ============================================
+using (var scope = app.Services.CreateScope())
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    context.Database.EnsureCreated();
+}
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
