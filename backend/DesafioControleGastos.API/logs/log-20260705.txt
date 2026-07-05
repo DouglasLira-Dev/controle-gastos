@@ -1,0 +1,7 @@
+2026-07-05 12:57:50 [INF] ✅ Dados iniciais criados com sucesso!
+2026-07-05 13:03:56 [ERR] Failed executing DbCommand (5ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "Pessoas" (
+    "Id" TEXT NOT NULL CONSTRAINT "PK_Pessoas" PRIMARY KEY,
+    "Nome" TEXT NOT NULL,
+    "Idade" INTEGER NOT NULL
+);

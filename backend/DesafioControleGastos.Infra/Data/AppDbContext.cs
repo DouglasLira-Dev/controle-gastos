@@ -14,6 +14,7 @@ namespace DesafioControleGastos.Infra.Data
 
         public DbSet<Pessoa> Pessoas { get; set; }
         public DbSet<Transacao> Transacoes { get; set; }
+        public DbSet<Usuario> Usuarios { get; set; }
 
         /// <summary>
         /// Configuração do modelo com regras de negócio e relacionamentos
@@ -30,8 +31,6 @@ namespace DesafioControleGastos.Infra.Data
                 entity.HasKey(p => p.Id);
                 entity.Property(p => p.Nome).IsRequired().HasMaxLength(100);
                 entity.Property(p => p.Idade).IsRequired();
-
-                // Índice para busca por nome (performance)
                 entity.HasIndex(p => p.Nome);
             });
 
@@ -46,14 +45,29 @@ namespace DesafioControleGastos.Infra.Data
                 entity.Property(t => t.Tipo).IsRequired();
                 entity.Property(t => t.DataCriacao).IsRequired();
 
-                // ============================================
-                // ⚠️ REGRA DE NEGÓCIO: DELETE EM CASCATA
-                // Ao deletar uma pessoa, todas as transações são deletadas
-                // ============================================
                 entity.HasOne(t => t.Pessoa)
                     .WithMany(p => p.Transacoes)
                     .HasForeignKey(t => t.PessoaId)
                     .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // ============================================
+            // 🔒 CONFIGURAÇÃO DA ENTIDADE USUARIO
+            // ============================================
+            modelBuilder.Entity<Usuario>(entity =>
+            {
+                entity.HasKey(u => u.Id);
+                entity.Property(u => u.Username).IsRequired().HasMaxLength(50);
+                entity.Property(u => u.Email).IsRequired().HasMaxLength(100);
+                entity.Property(u => u.PasswordHash).IsRequired();
+                entity.Property(u => u.PasswordSalt).IsRequired();
+                entity.Property(u => u.Role).IsRequired().HasMaxLength(20);
+                entity.Property(u => u.IsActive).IsRequired();
+                entity.Property(u => u.CreatedAt).IsRequired();
+                entity.Property(u => u.RefreshToken).HasMaxLength(100);
+                
+                entity.HasIndex(u => u.Username).IsUnique();
+                entity.HasIndex(u => u.Email).IsUnique();
             });
         }
     }

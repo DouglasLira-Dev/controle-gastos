@@ -2,6 +2,9 @@ using DesafioControleGastos.Core.DTOs;
 using DesafioControleGastos.Core.Interfaces;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using DesafioControleGastos.Core.Constants;
+
 
 namespace DesafioControleGastos.API.Controllers
 {
@@ -10,6 +13,7 @@ namespace DesafioControleGastos.API.Controllers
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize] // 🔒 TODOS os endpoints exigem autenticação
     [Produces("application/json")]
     public class PessoasController : ControllerBase
     {
@@ -104,6 +108,7 @@ namespace DesafioControleGastos.API.Controllers
         /// <param name="id">ID da pessoa a ser deletada</param>
         /// <response code="204">Pessoa deletada com sucesso</response>
         /// <response code="404">Pessoa não encontrada</response>
+        [Authorize(Roles = Roles.Admin)] //🔒 Apenas Admin pode deletar
         [HttpDelete("{id}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]

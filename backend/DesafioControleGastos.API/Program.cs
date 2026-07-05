@@ -17,7 +17,10 @@ var builder = WebApplication.CreateBuilder(args);
 // 🔒 CONFIGURAÇÃO DE SEGURANÇA
 // ============================================
 
+// 🔒 AddJwtAuthentication já inclui AddAuthentication + AddAuthorization
 builder.Services.AddJwtAuthentication(builder.Configuration);
+
+// 🔒 Rate Limiting
 builder.Services.AddRateLimiting();
 
 // ============================================
@@ -46,12 +49,14 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // ============================================
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IPessoaRepository, PessoaRepository>();
+builder.Services.AddScoped<IRepository<Usuario>, Repository<Usuario>>();
 
 // ============================================
 // CONFIGURAÇÃO DOS SERVICES
 // ============================================
 builder.Services.AddScoped<IPessoaService, PessoaService>();
 builder.Services.AddScoped<ITransacaoService, TransacaoService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 // ============================================
 // CONFIGURAÇÃO DO AUTOMAPPER
@@ -95,15 +100,7 @@ builder.Services.AddControllers()
 // CONFIGURAÇÃO DO SWAGGER
 // ============================================
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new Microsoft.OpenApi.OpenApiInfo
-    {
-        Title = "Desafio Controle de Gastos API",
-        Version = "v1",
-        Description = "API para controle de gastos residenciais com segurança"
-    });
-});
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
@@ -133,8 +130,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowReactApp");
-app.UseAuthentication();
-app.UseAuthorization();
+
+// 🔒 MIDDLEWARES DE AUTENTICAÇÃO E AUTORIZAÇÃO
+app.UseAuthentication(); // 🔒 Verifica o token
+app.UseAuthorization();  // 🔒 Verifica as permissões
+
 app.MapControllers();
 
 // ============================================

@@ -21,6 +21,7 @@ namespace DesafioControleGastos.API.Configurations
             var key = Encoding.UTF8.GetBytes(configuration["Jwt:Key"] ?? 
                 throw new InvalidOperationException("JWT Key não configurada"));
 
+            // 🔒 Configura a autenticação
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
@@ -38,6 +39,9 @@ namespace DesafioControleGastos.API.Configurations
                         ClockSkew = TimeSpan.Zero
                     };
                 });
+
+            // 🔒 Configura a autorização (ADICIONAR ESTA LINHA!)
+            services.AddAuthorization();
         }
     }
 }
