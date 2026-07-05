@@ -1,6 +1,7 @@
 using DesafioControleGastos.Core.DTOs;
 using DesafioControleGastos.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DesafioControleGastos.API.Controllers
 {
@@ -9,6 +10,7 @@ namespace DesafioControleGastos.API.Controllers
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     [Produces("application/json")]
     public class TotaisController : ControllerBase
     {

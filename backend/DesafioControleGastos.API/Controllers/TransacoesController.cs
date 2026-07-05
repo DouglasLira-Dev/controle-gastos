@@ -2,6 +2,7 @@ using DesafioControleGastos.Core.DTOs;
 using DesafioControleGastos.Core.Interfaces;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DesafioControleGastos.API.Controllers
 {
@@ -10,6 +11,7 @@ namespace DesafioControleGastos.API.Controllers
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     [Produces("application/json")]
     public class TransacoesController : ControllerBase
     {

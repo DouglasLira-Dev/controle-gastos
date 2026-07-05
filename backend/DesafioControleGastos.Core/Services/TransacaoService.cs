@@ -12,13 +12,13 @@ namespace DesafioControleGastos.Core.Services
     /// </summary>
     public class TransacaoService : ITransacaoService
     {
-        private readonly IRepository<Transacao> _transacaoRepository;
+        private readonly ITransacaoRepository _transacaoRepository; // 🔧 MUDOU para ITransacaoRepository
         private readonly IPessoaService _pessoaService;
         private readonly IMapper _mapper;
         private readonly IValidator<TransacaoCreateDTO> _validator;
 
         public TransacaoService(
-            IRepository<Transacao> transacaoRepository,
+            ITransacaoRepository transacaoRepository, // 🔧 MUDOU
             IPessoaService pessoaService,
             IMapper mapper,
             IValidator<TransacaoCreateDTO> validator)
@@ -31,14 +31,13 @@ namespace DesafioControleGastos.Core.Services
 
         public async Task<IEnumerable<TransacaoResponseDTO>> GetAllAsync()
         {
-            var transacoes = await _transacaoRepository.GetAllAsync();
+            var transacoes = await _transacaoRepository.GetAllWithPessoaAsync(); // 🔧 CORRIGIDO
             return _mapper.Map<IEnumerable<TransacaoResponseDTO>>(transacoes);
         }
 
         public async Task<IEnumerable<TransacaoResponseDTO>> GetByPessoaIdAsync(Guid pessoaId)
         {
-            var transacoes = await _transacaoRepository
-                .FindAsync(t => t.PessoaId == pessoaId);
+            var transacoes = await _transacaoRepository.GetByPessoaIdWithPessoaAsync(pessoaId); // 🔧 CORRIGIDO
             return _mapper.Map<IEnumerable<TransacaoResponseDTO>>(transacoes);
         }
 

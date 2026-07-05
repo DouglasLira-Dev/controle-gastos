@@ -14,6 +14,14 @@ using Serilog;
 var builder = WebApplication.CreateBuilder(args);
 
 // ============================================
+// 🔧 CONFIGURAÇÃO DO USER SECRETS (DESENVOLVIMENTO)
+// ============================================
+if (builder.Environment.IsDevelopment())
+{
+    builder.Configuration.AddUserSecrets<Program>();
+}
+
+// ============================================
 // 🔒 CONFIGURAÇÃO DE SEGURANÇA
 // ============================================
 
@@ -49,14 +57,16 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // ============================================
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IPessoaRepository, PessoaRepository>();
+builder.Services.AddScoped<ITransacaoRepository, TransacaoRepository>();
 builder.Services.AddScoped<IRepository<Usuario>, Repository<Usuario>>();
 
 // ============================================
 // CONFIGURAÇÃO DOS SERVICES
 // ============================================
-builder.Services.AddScoped<IPessoaService, PessoaService>();
-builder.Services.AddScoped<ITransacaoService, TransacaoService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped<IPessoaRepository, PessoaRepository>();
+builder.Services.AddScoped<ITransacaoRepository, TransacaoRepository>();
+builder.Services.AddScoped<IRepository<Usuario>, Repository<Usuario>>();
 
 // ============================================
 // CONFIGURAÇÃO DO AUTOMAPPER
@@ -132,8 +142,8 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowReactApp");
 
 // 🔒 MIDDLEWARES DE AUTENTICAÇÃO E AUTORIZAÇÃO
-app.UseAuthentication(); // 🔒 Verifica o token
-app.UseAuthorization();  // 🔒 Verifica as permissões
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 
@@ -159,6 +169,33 @@ using (var scope = app.Services.CreateScope())
             context.SaveChanges();
             
             Log.Information("✅ Dados iniciais criados com sucesso!");
+        }
+        
+        // 🔧 SEED DE USUÁRIO ADMIN
+        if (!context.Usuarios.Any())
+        {
+            using var hmac = new System.Security.Cryptography.HMACSHA512();
+            var salt = Convert.ToBase64String(hmac.Key);
+            var hash = Convert.ToBase64String(hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes("Admin123!")));
+            
+            var admin = new Usuario
+            {
+                Username = "admin",
+                Email = "admin@controle.com",
+                PasswordHash = hash,
+                PasswordSalt = salt,
+                Role = "Admin",
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+            
+            context.Usuarios.Add(admin);
+            context.SaveChanges();
+            
+            Log.Information("✅ Usuário Admin criado com sucesso!");
+            Log.Information("   Username: admin");
+            Log.Information("   Password: Admin123!");
+            Log.Information("   Role: Admin");
         }
     }
     catch (Exception ex)

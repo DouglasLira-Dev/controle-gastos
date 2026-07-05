@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using DesafioControleGastos.Core.DTOs;
 
 namespace DesafioControleGastos.Core.Interfaces
