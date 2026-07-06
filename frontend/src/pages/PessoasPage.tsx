@@ -24,7 +24,7 @@ import {
 } from '@mui/material';
 import { Delete, Add, Person, Visibility } from '@mui/icons-material';
 import { pessoasApi } from '../api/api';
-import { Pessoa, PessoaCreate } from '../types';
+import type { Pessoa, PessoaCreate } from '../types';
 
 const PessoasPage: React.FC = () => {
   const [pessoas, setPessoas] = useState<Pessoa[]>([]);

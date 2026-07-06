@@ -27,7 +27,7 @@ import {
 } from '@mui/material';
 import { Add, TrendingUp, TrendingDown } from '@mui/icons-material';
 import { transacoesApi, pessoasApi } from '../api/api';
-import { Transacao, TransacaoCreate, Pessoa, TipoTransacao } from '../types';
+import { type Transacao, type TransacaoCreate, type Pessoa, TipoTransacao } from '../types';
 
 const TransacoesPage: React.FC = () => {
   const [transacoes, setTransacoes] = useState<Transacao[]>([]);

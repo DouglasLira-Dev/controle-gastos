@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import { TrendingUp, TrendingDown, AccountBalance } from '@mui/icons-material';
 import { totaisApi } from '../api/api';
-import { TotalGeral } from '../types';
+import type { TotalGeral } from '../types';
 
 const TotaisPage: React.FC = () => {
   const [totais, setTotais] = useState<TotalGeral | null>(null);
