@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
+import React, { createContext, useState, useContext, type ReactNode, useEffect } from 'react';
 import { authApi } from '../api/api';
 import type { AuthResponse, LoginRequest, RegisterRequest } from '../types';
 
@@ -30,10 +30,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   const login = async (data: LoginRequest) => {
-    const response = await authApi.login(data);
-    localStorage.setItem('token', response.token);
-    localStorage.setItem('refreshToken', response.refreshToken);
-    setUser(response);
+    try {
+      const response = await authApi.login(data);
+      localStorage.setItem('token', response.token);
+      localStorage.setItem('refreshToken', response.refreshToken);
+      setUser(response);
+      console.log('✅ Login realizado com sucesso! Role:', response.role); // ADICIONAR LOG
+    } catch (error) {
+      console.error('❌ Erro no login:', error);
+      throw error;
+    }
   };
 
   const register = async (data: RegisterRequest) => {

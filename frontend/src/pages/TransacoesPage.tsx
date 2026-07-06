@@ -77,30 +77,62 @@ const TransacoesPage: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    try {
-      if (!formData.descricao.trim()) {
-        setSnackbar({ open: true, message: 'Descrição é obrigatória', severity: 'error' });
-        return;
-      }
-      if (formData.valor <= 0) {
-        setSnackbar({ open: true, message: 'Valor deve ser maior que zero', severity: 'error' });
-        return;
-      }
-      if (!formData.pessoaId) {
-        setSnackbar({ open: true, message: 'Selecione uma pessoa', severity: 'error' });
-        return;
-      }
-
-      await transacoesApi.create(formData);
-      setSnackbar({ open: true, message: 'Transação criada com sucesso!', severity: 'success' });
-      handleCloseDialog();
-      carregarDados();
-    } catch (error: any) {
-      console.error('Erro ao criar transação:', error);
-      const message = error.response?.data?.errors?.[0] || error.response?.data?.error || 'Erro ao criar transação';
-      setSnackbar({ open: true, message, severity: 'error' });
+  try {
+    // 🔧 VALIDAÇÕES
+    if (!formData.descricao.trim()) {
+      setSnackbar({ open: true, message: 'Descrição é obrigatória', severity: 'error' });
+      return;
     }
-  };
+    if (formData.valor <= 0) {
+      setSnackbar({ open: true, message: 'Valor deve ser maior que zero', severity: 'error' });
+      return;
+    }
+    if (!formData.pessoaId) {
+      setSnackbar({ open: true, message: 'Selecione uma pessoa', severity: 'error' });
+      return;
+    }
+
+    // 🔧 LOG DOS DADOS ENVIADOS
+    console.log('📤 Enviando transação:', {
+      descricao: formData.descricao,
+      valor: formData.valor,
+      tipo: formData.tipo,
+      pessoaId: formData.pessoaId
+    });
+
+    // 🔧 GARANTIR QUE OS TIPOS ESTÃO CORRETOS
+    const dataToSend = {
+      descricao: formData.descricao,
+      valor: Number(formData.valor),
+      tipo: Number(formData.tipo),
+      pessoaId: formData.pessoaId
+    };
+
+    await transacoesApi.create(dataToSend);
+    setSnackbar({ open: true, message: 'Transação criada com sucesso!', severity: 'success' });
+    handleCloseDialog();
+    carregarDados();
+  } catch (error: any) {
+    console.error('❌ Erro ao criar transação:', error);
+    console.error('📄 Resposta do servidor:', error.response?.data);
+    
+    // 🔧 MENSAGEM DE ERRO MAIS DETALHADA
+    let message = 'Erro ao criar transação';
+    if (error.response?.data?.errors) {
+      // Erros do FluentValidation
+      const errors = error.response.data.errors;
+      if (Array.isArray(errors)) {
+        message = errors.join(', ');
+      } else if (typeof errors === 'object') {
+        message = Object.values(errors).flat().join(', ');
+      }
+    } else if (error.response?.data?.error) {
+      message = error.response.data.error;
+    }
+    
+    setSnackbar({ open: true, message, severity: 'error' });
+  }
+};
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
