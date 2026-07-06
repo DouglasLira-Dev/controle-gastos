@@ -44,7 +44,7 @@ const TotaisPage: React.FC = () => {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
         <CircularProgress />
       </Box>
     );
@@ -76,10 +76,10 @@ const TotaisPage: React.FC = () => {
 
       {/* Cards de Totais Gerais */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Card sx={{ bgcolor: 'success.light', color: 'white' }}>
             <CardContent>
-              <Box display="flex" alignItems="center">
+              <Box sx={{ display: "flex", alignItems: "center" }}>
                 <TrendingUp sx={{ fontSize: 40, mr: 2 }} />
                 <Box>
                   <Typography variant="h6">Total Receitas</Typography>
@@ -89,10 +89,10 @@ const TotaisPage: React.FC = () => {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Card sx={{ bgcolor: 'error.light', color: 'white' }}>
             <CardContent>
-              <Box display="flex" alignItems="center">
+              <Box sx={{ display: "flex", alignItems: "center" }}>
                 <TrendingDown sx={{ fontSize: 40, mr: 2 }} />
                 <Box>
                   <Typography variant="h6">Total Despesas</Typography>
@@ -102,13 +102,13 @@ const TotaisPage: React.FC = () => {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Card sx={{ 
             bgcolor: totais.saldoLiquido >= 0 ? 'info.light' : 'warning.light', 
             color: 'white' 
           }}>
             <CardContent>
-              <Box display="flex" alignItems="center">
+              <Box sx={{ display: "flex", alignItems: "center" }}>
                 <AccountBalance sx={{ fontSize: 40, mr: 2 }} />
                 <Box>
                   <Typography variant="h6">Saldo Líquido</Typography>

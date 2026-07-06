@@ -110,7 +110,7 @@ const PessoasPage: React.FC = () => {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+      <Box sx= {{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
         <CircularProgress />
       </Box>
     );
@@ -118,7 +118,7 @@ const PessoasPage: React.FC = () => {
 
   return (
     <Box>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
         <Typography variant="h4" component="h1">
           👤 Pessoas
         </Typography>
@@ -227,7 +227,7 @@ const PessoasPage: React.FC = () => {
             required
             value={formData.idade || ''}
             onChange={(e) => setFormData({ ...formData, idade: parseInt(e.target.value) || 0 })}
-            inputProps={{ min: 0, max: 150 }}
+            slotProps={{ htmlInput: { min: 0, max: 150 } }}
             sx={{ mt: 2 }}
           />
         </DialogContent>

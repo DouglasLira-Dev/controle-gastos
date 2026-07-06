@@ -158,7 +158,7 @@ const TransacoesPage: React.FC = () => {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
         <CircularProgress />
       </Box>
     );
@@ -166,7 +166,7 @@ const TransacoesPage: React.FC = () => {
 
   return (
     <Box>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
         <Typography variant="h4" component="h1">
           💰 Transações
         </Typography>
@@ -248,7 +248,7 @@ const TransacoesPage: React.FC = () => {
             required
             value={formData.valor || ''}
             onChange={(e) => setFormData({ ...formData, valor: parseFloat(e.target.value) || 0 })}
-            inputProps={{ min: 0.01, step: 0.01 }}
+            slotProps={{ htmlInput: { min: 0, step: 0.01 } }}
             sx={{ mt: 2 }}
           />
           <FormControl fullWidth margin="dense" sx={{ mt: 2 }}>
