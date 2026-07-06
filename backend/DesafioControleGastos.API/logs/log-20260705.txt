@@ -5,3 +5,6 @@ CREATE TABLE "Pessoas" (
     "Nome" TEXT NOT NULL,
     "Idade" INTEGER NOT NULL
 );
+2026-07-05 13:19:57 [INF] ✅ Dados iniciais criados com sucesso!
+2026-07-05 13:20:06 [INF] ✅ Novo usuário registrado: admin (User)
+2026-07-05 13:20:35 [INF] ✅ Login bem-sucedido: admin (User)

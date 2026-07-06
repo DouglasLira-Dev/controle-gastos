@@ -1,26 +1,17 @@
 using DesafioControleGastos.Core.DTOs;
 using DesafioControleGastos.Core.Interfaces;
+using DesafioControleGastos.Core.Models;
 using FluentValidation;
 
 namespace DesafioControleGastos.Core.Validators
 {
-    /// <summary>
-    /// Validador para criação de transação
-    /// </summary>
-    /// <remarks>
-    /// Regras de validação:
-    /// - Descrição: obrigatória, 3-200 caracteres
-    /// - Valor: maior que zero, máximo 2 casas decimais
-    /// - PessoaId: deve existir no sistema
-    /// - ⚠️ REGRA DE NEGÓCIO: Menores de 18 só podem ter despesas
-    /// </remarks>
     public class TransacaoCreateValidator : AbstractValidator<TransacaoCreateDTO>
     {
-        private readonly IPessoaService _pessoaService;
+        private readonly IPessoaRepository _pessoaRepository;
 
-        public TransacaoCreateValidator(IPessoaService pessoaService)
+        public TransacaoCreateValidator(IPessoaRepository pessoaRepository)
         {
-            _pessoaService = pessoaService;
+            _pessoaRepository = pessoaRepository;
 
             // ============================================
             // VALIDAÇÃO DA DESCRIÇÃO
@@ -67,8 +58,7 @@ namespace DesafioControleGastos.Core.Validators
         {
             try
             {
-                var pessoa = await _pessoaService.GetByIdAsync(pessoaId);
-                return pessoa != null;
+                return await _pessoaRepository.ExistsAsync(pessoaId);
             }
             catch
             {
@@ -83,13 +73,13 @@ namespace DesafioControleGastos.Core.Validators
         {
             try
             {
-                var pessoa = await _pessoaService.GetByIdAsync(dto.PessoaId);
+                var pessoa = await _pessoaRepository.GetByIdAsync(dto.PessoaId);
                 
                 // Se a pessoa existe e é menor de idade (< 18)
                 if (pessoa != null && pessoa.IsMenorDeIdade)
                 {
                     // ⚠️ BLOQUEIA: Menores de idade só podem ter despesas
-                    if (dto.Tipo == Core.Models.TipoTransacao.Receita)
+                    if (dto.Tipo == TipoTransacao.Receita)
                     {
                         return false;
                     }

@@ -18,12 +18,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<AuthResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // 🔧 CORRIGIDO: Renomear variável para não colidir com a função
   useEffect(() => {
     const token = localStorage.getItem('token');
-    const refreshToken = localStorage.getItem('refreshToken');
-    if (token && refreshToken) {
-      // Tentar renovar o token
-      refreshToken();
+    const storedRefreshToken = localStorage.getItem('refreshToken'); // 👈 NOME DIFERENTE
+    if (token && storedRefreshToken) {
+      refreshToken(); // 👈 Agora chama a função, não a string!
     } else {
       setLoading(false);
     }
@@ -55,12 +55,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const refreshToken = async () => {
     try {
-      const refreshToken = localStorage.getItem('refreshToken');
-      if (!refreshToken) {
+      const storedRefreshToken = localStorage.getItem('refreshToken');
+      if (!storedRefreshToken) {
         setLoading(false);
         return;
       }
-      const response = await authApi.refresh(refreshToken);
+      const response = await authApi.refresh(storedRefreshToken);
       localStorage.setItem('token', response.token);
       localStorage.setItem('refreshToken', response.refreshToken);
       setUser(response);

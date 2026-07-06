@@ -63,10 +63,9 @@ builder.Services.AddScoped<IRepository<Usuario>, Repository<Usuario>>();
 // ============================================
 // CONFIGURAÇÃO DOS SERVICES
 // ============================================
-builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-builder.Services.AddScoped<IPessoaRepository, PessoaRepository>();
-builder.Services.AddScoped<ITransacaoRepository, TransacaoRepository>();
-builder.Services.AddScoped<IRepository<Usuario>, Repository<Usuario>>();
+builder.Services.AddScoped<IPessoaService, PessoaService>();
+builder.Services.AddScoped<ITransacaoService, TransacaoService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 // ============================================
 // CONFIGURAÇÃO DO AUTOMAPPER

@@ -67,7 +67,7 @@ export interface TotalGeral {
 }
 
 // ============================================
-// AUTENTICAÇÃO
+// 🔐 AUTENTICAÇÃO
 // ============================================
 export interface LoginRequest {
   username: string;
